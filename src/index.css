@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  /* Force Bricolage Grotesque on EVERY element including inputs, buttons, textareas */
+  *, *::before, *::after {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+
+  /* JetBrains Mono only where explicitly applied */
+  .font-code, code, pre {
+    font-family: "JetBrains Mono", monospace !important;
+  }
+
+  body {
+    background-color: #1c1c1a;
+    color: #f0ece0;
+    font-family: "Bricolage Grotesque", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  /* Browsers override font-family on form elements by default — fix that */
+  input, textarea, select, button {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+
+  /* Scrollbar — sand thumb on charcoal track */
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: #3a3a34; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #e8604c; }
+  *                          { scrollbar-width: thin; scrollbar-color: #3a3a34 transparent; }
+}
+
+@layer utilities {
+  .delay-75  { animation-delay: 75ms; }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+  .delay-700 { animation-delay: 700ms; }
+
+  /* Active link dot — slow breathing glow */
+  .active-dot {
+    position: relative;
+  }
+  .active-dot::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1px solid #e8604c;
+    opacity: 0;
+    animation: subtlePulse 2.5s ease-out infinite;
+  }
+  @keyframes subtlePulse {
+    0%   { opacity: 0.55; transform: scale(1); }
+    65%  { opacity: 0;    transform: scale(1.75); }
+    100% { opacity: 0;    transform: scale(1.75); }
+  }
+
+  /* Zen-style concentric arc decoration */
+  .arc {
+    position: absolute;
+    border-radius: 50%;
+    border: 2.5px solid currentColor;
+    aspect-ratio: 1;
+  }
+
+  /* Coral underline accent */
+  .coral-underline {
+    text-decoration: underline;
+    text-decoration-color: #e8604c;
+    text-underline-offset: 4px;
+  }
+
+  /* Pill / tag */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Card surfaces */
+  .card-dark {
+    background: #242420;
+    border: 1px solid #3a3a34;
+    border-radius: 14px;
+  }
+
+  .card-sand {
+    background: #d4d0c0;
+    border: 1px solid #c0bcac;
+    border-radius: 14px;
+  }
+}
+
+/* ── Fix browser autofill background color on inputs ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* Shadow trick: paints over the autofill yellow/blue with our bg color */
+  -webkit-box-shadow: 0 0 0 9999px #2c2c28 inset !important;
+  box-shadow: 0 0 0 9999px #2c2c28 inset !important;
+  -webkit-text-fill-color: #f0ece0 !important;
+  caret-color: #f0ece0;
+  transition: background-color 99999s ease-in-out 0s;
+}
