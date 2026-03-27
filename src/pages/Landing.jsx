@@ -34,7 +34,7 @@ export default function Landing() {
           <div className="w-7 h-7 rounded-full border-2 flex items-center justify-center" style={{ borderColor: '#e8604c' }}>
             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#e8604c' }} />
           </div>
-          <span className="font-display font-700 text-ivory text-base">Urlix</span>
+          <span className="font-display font-700 text-ivory text-base">Lynktree</span>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/login"
@@ -74,7 +74,7 @@ export default function Landing() {
           <p className="font-body text-lg leading-relaxed mb-10 max-w-md opacity-0 animate-fade-up delay-200"
             style={{ color: '#a8a498', animationFillMode: 'forwards' }}>
             Share your portfolio, GitHub, socials, and anything else — from a single clean page at{' '}
-            <span style={{ color: '#f0ece0' }}>urlix.io/@you</span>
+            <span style={{ color: '#f0ece0' }}>lynktree.io/@you</span>
           </p>
 
           <div className="flex flex-wrap items-center gap-4 opacity-0 animate-fade-up delay-300" style={{ animationFillMode: 'forwards' }}>
@@ -87,9 +87,9 @@ export default function Landing() {
             </Link>
             <Link to="/login"
               className="inline-flex items-center gap-1.5 font-body font-500 text-sm transition-colors"
-              style={{ color: '#6b6b5a' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#a8a498'}
-              onMouseLeave={e => e.currentTarget.style.color = '#6b6b5a'}>
+              style={{ color: '#a8a498' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#f0ece0'}
+              onMouseLeave={e => e.currentTarget.style.color = '#a8a498'}>
               Already have an account →
             </Link>
           </div>
@@ -112,7 +112,7 @@ export default function Landing() {
               </div>
               <div className="flex-1 mx-3 px-3 py-1 rounded-md text-xs font-code text-center"
                 style={{ background: '#2c2c28', color: '#6b6b5a' }}>
-                urlix.io/@yourname
+                lynktree.io/@yourname
               </div>
             </div>
             {/* Profile content */}
@@ -171,25 +171,24 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="sticky-footer relative z-10 border-t px-6 sm:px-12 py-6 flex items-center justify-between flex-wrap gap-4"
+      <footer className="relative z-10 border-t px-6 sm:px-12 py-6 flex items-center justify-between flex-wrap gap-4"
         style={{ backgroundColor: '#1c1c1a', borderColor: '#2c2c28' }}>
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-full border flex items-center justify-center" style={{ borderColor: '#e8604c' }}>
             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#e8604c' }} />
           </div>
-          <span className="font-display font-600 text-sm" style={{ color: '#6b6b5a' }}>Urlix</span>
+          <span className="font-display font-600 text-sm" style={{ color: '#a8a498' }}>Lynktree</span>
         </div>
 
-        <p className="font-body text-xs" style={{ color: '#3a3a34' }}>
+        <p className="font-body text-xs" style={{ color: '#6b6b5a' }}>
           Your links. Your page. Free forever.
         </p>
 
-        {/* GitHub icon only */}
         <a href="https://github.com" target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1.5 font-body text-xs transition-colors"
-          style={{ color: '#3a3a34' }}
+          style={{ color: '#6b6b5a' }}
           onMouseEnter={e => e.currentTarget.style.color = '#f0ece0'}
-          onMouseLeave={e => e.currentTarget.style.color = '#3a3a34'}>
+          onMouseLeave={e => e.currentTarget.style.color = '#6b6b5a'}>
           <Github size={15} />
           GitHub
         </a>

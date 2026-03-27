@@ -522,7 +522,7 @@ export default function Dashboard() {
             <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center" style={{ borderColor: '#e8604c' }}>
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#e8604c' }} />
             </div>
-            <span className="font-display font-700 text-ivory text-base">Urlix</span>
+            <span className="font-display font-700 text-ivory text-base">Lynktree</span>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={copyUrl}

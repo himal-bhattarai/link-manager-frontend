@@ -57,11 +57,11 @@ export default function NotFound() {
       </div>
 
       {/* Bottom wordmark */}
-      <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
+      <div className="absolute bottom-8 flex items-center gap-2 opacity-60">
         <div className="w-4 h-4 rounded-full border flex items-center justify-center" style={{ borderColor: '#e8604c' }}>
           <div className="w-1 h-1 rounded-full" style={{ backgroundColor: '#e8604c' }} />
         </div>
-        <span className="font-display font-600 text-xs" style={{ color: '#6b6b5a' }}>Urlix</span>
+        <span className="font-display font-600 text-xs" style={{ color: '#6b6b5a' }}>Lynktree</span>
       </div>
     </div>
   )

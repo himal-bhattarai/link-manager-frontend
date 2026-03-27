@@ -147,7 +147,7 @@ export default function PublicProfile({ username: usernameProp }) {
           <div className="w-5 h-5 rounded-full border flex items-center justify-center" style={{ borderColor: '#e8604c' }}>
             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#e8604c' }} />
           </div>
-          <span className="font-display font-700 text-xs text-ivory">Urlix</span>
+          <span className="font-display font-700 text-xs text-ivory">Lynktree</span>
         </Link>
         {!loading && !notFound && <ShareMenu url={window.location.href} username={username} />}
       </div>
@@ -181,7 +181,7 @@ export default function PublicProfile({ username: usernameProp }) {
               )}
 
               <h1 className="font-display font-700 text-2xl text-ivory mb-1">{profile.displayName}</h1>
-              <span className="font-code text-xs mb-3" style={{ color: '#3a3a34' }}>@{profile.username}</span>
+              <span className="font-code text-xs mb-3" style={{ color: '#6b6b5a' }}>@{profile.username}</span>
               {profile.bio && <p className="font-body text-sm leading-relaxed max-w-[260px]" style={{ color: '#a8a498' }}>{profile.bio}</p>}
 
               {links.length > 0 && (
@@ -212,10 +212,13 @@ export default function PublicProfile({ username: usernameProp }) {
                     style={{ width: s, height: s, bottom: 0, left: '50%', transform: 'translateX(-50%)', borderColor: '#3a3a34' }} />
                 ))}
               </div>
-              <Link to="/signup" className="text-xs font-body transition-colors" style={{ color: '#3a3a34' }}
+              <Link to="/signup" className="text-xs font-body transition-colors flex items-center gap-1.5" style={{ color: '#6b6b5a' }}
                 onMouseEnter={e => e.currentTarget.style.color = '#e8604c'}
-                onMouseLeave={e => e.currentTarget.style.color = '#3a3a34'}>
-                Create your own Urlix →
+                onMouseLeave={e => e.currentTarget.style.color = '#6b6b5a'}>
+                <div className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0" style={{ borderColor: '#e8604c' }}>
+                  <div className="w-1 h-1 rounded-full" style={{ backgroundColor: '#e8604c' }} />
+                </div>
+                Create your own Lynktree →
               </Link>
             </div>
           </div>
