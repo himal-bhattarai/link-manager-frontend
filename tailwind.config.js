@@ -11,28 +11,21 @@ export default {
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
-        // Dark hero bg
         charcoal: '#1c1c1a',
-        // Sand/sage footer + light bg
         sand: '#d4d0c0',
         parchment: '#e8e4d4',
-        // Coral accent
-        coral: {
-          DEFAULT: '#e8604c',
-          light:   '#f07060',
-          dark:    '#c44030',
-        },
-        // Text
-        ivory: '#f0ece0',
-        mist:  '#a8a498',
-        // Surfaces
+        coral: { DEFAULT: '#e8604c', light: '#f07060', dark: '#c44030' },
+        ivory:   '#f0ece0',
+        mist:    '#a8a498',
+        muted:   '#6b6b5a',
         surface: '#242420',
         panel:   '#2c2c28',
-        edge:    '#3a3a34',
+        edge:    '#6b6b5a',
       },
       animation: {
         'fade-up':    'fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
         'fade-in':    'fadeIn 0.4s ease forwards',
+        'shake':      'shake 0.45s cubic-bezier(0.36,0.07,0.19,0.97)',
         'scale-in':   'scaleIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards',
         'slide-left': 'slideLeft 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
       },

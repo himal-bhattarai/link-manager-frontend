@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, ArrowRight, Check, X, AtSign, User, Mail, Lock, CircleCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -7,9 +7,9 @@ import api from '../lib/api'
 import toast from 'react-hot-toast'
 
 const rules = [
-  { label: 'At least 8 characters', test: (p) => p.length >= 8 },
-  { label: 'One uppercase letter',  test: (p) => /[A-Z]/.test(p) },
-  { label: 'One number',            test: (p) => /[0-9]/.test(p) },
+  { label: '8+ chars',  test: (p) => p.length >= 8 },
+  { label: 'Uppercase', test: (p) => /[A-Z]/.test(p) },
+  { label: 'Number',    test: (p) => /[0-9]/.test(p) },
 ]
 
 export default function Signup() {
@@ -19,8 +19,10 @@ export default function Signup() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [focused, setFocused] = useState('')
-  const [usernameState, setUsernameState] = useState('idle')
+  const [usernameState, setUsernameState] = useState('idle') // idle | checking | available | taken
+  const [emailShake, setEmailShake] = useState(false)
   const debounceRef = useRef(null)
+  const emailRef = useRef(null)
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -37,6 +39,12 @@ export default function Signup() {
     }, 500)
   }, [form.username])
 
+  const triggerEmailError = useCallback(() => {
+    setEmailShake(true)
+    setTimeout(() => setEmailShake(false), 500)
+    setTimeout(() => emailRef.current?.focus(), 10)
+  }, [])
+
   const submit = async (e) => {
     e.preventDefault()
     if (usernameState === 'taken') { toast.error('Username already taken'); return }
@@ -46,19 +54,22 @@ export default function Signup() {
       toast.success('Account created!')
       navigate('/dashboard')
     } catch (err) {
+      const msg = err.message?.toLowerCase() || ''
+      if (msg.includes('email')) {
+        triggerEmailError()
+      }
       toast.error(err.message)
     } finally {
       setLoading(false)
     }
   }
 
-  const inputStyle = (name, extra = {}) => ({
+  const base = (name) => ({
     background: '#2c2c28',
     borderWidth: '1.5px',
     borderStyle: 'solid',
     borderColor: focused === name ? '#e8604c' : '#3a3a34',
     boxShadow: focused === name ? '0 0 0 3px rgba(232,96,76,0.12)' : 'none',
-    ...extra,
   })
 
   return (
@@ -74,47 +85,63 @@ export default function Signup() {
       <h2 className="font-display font-700 text-3xl text-ivory mb-1">Get started</h2>
       <p className="font-body text-sm mb-5" style={{ color: '#a8a498' }}>Create your free account</p>
 
-      <form onSubmit={submit} className="space-y-3.5">
+      <form onSubmit={submit} className="space-y-3">
 
-        {/* Username */}
+        {/* ── Username ── */}
         <div>
-          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>Username</label>
+          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>
+            Username
+          </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
               <AtSign size={14} style={{ color: focused === 'username' ? '#e8604c' : '#6b6b5a' }} />
             </span>
-            <input name="username" required minLength={3} maxLength={30}
+            <input
+              name="username" required minLength={3} maxLength={30}
               value={form.username} onChange={handle}
               onFocus={() => setFocused('username')} onBlur={() => setFocused('')}
               placeholder="yourname"
-              className="w-full rounded-xl pl-11 pr-11 py-2.5 text-sm text-ivory placeholder-edge outline-none transition-all font-code"
-              style={inputStyle('username', {
-                borderColor: usernameState === 'taken'     ? '#f87171'
-                           : usernameState === 'available' ? '#4ade80'
-                           : focused === 'username'        ? '#e8604c' : '#3a3a34',
-              })} />
+              className="w-full rounded-xl pl-11 pr-11 py-2.5 text-sm text-ivory outline-none transition-all font-code"
+              style={{
+                ...base('username'),
+                // Only red when taken — never green border
+                borderColor: usernameState === 'taken' ? '#f87171'
+                           : focused === 'username'   ? '#e8604c' : '#3a3a34',
+              }}
+            />
+            {/* Status icon — right side */}
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-4">
               {usernameState === 'checking' && (
                 <span className="w-3.5 h-3.5 border-2 rounded-full animate-spin block"
                   style={{ borderColor: '#3a3a34', borderTopColor: '#e8604c' }} />
               )}
-              {usernameState === 'available' && <CircleCheck size={16} style={{ color: '#4ade80' }} strokeWidth={2} />}
-              {usernameState === 'taken'     && <X size={15} style={{ color: '#f87171' }} strokeWidth={2.5} />}
+              {usernameState === 'available' && (
+                <CircleCheck size={16} strokeWidth={2} style={{ color: '#4ade80' }} />
+              )}
+              {usernameState === 'taken' && (
+                <X size={15} strokeWidth={2.5} style={{ color: '#f87171' }} />
+              )}
             </span>
           </div>
-          {usernameState === 'available' && (
-            <p className="text-xs mt-1 font-code flex items-center gap-1" style={{ color: '#4ade80' }}>
-              <CircleCheck size={11} strokeWidth={2} /> @{form.username} is available
-            </p>
-          )}
-          {usernameState === 'taken' && (
-            <p className="text-xs mt-1 font-body" style={{ color: '#f87171' }}>Already taken — try another</p>
-          )}
+          {/* Fixed height — prevents layout shift */}
+          <div style={{ height: '18px', marginTop: '4px' }}>
+            {usernameState === 'available' && (
+              <p className="text-xs font-code flex items-center gap-1" style={{ color: '#4ade80' }}>
+                <CircleCheck size={10} strokeWidth={2.5} />
+                @{form.username} is available
+              </p>
+            )}
+            {usernameState === 'taken' && (
+              <p className="text-xs font-body" style={{ color: '#f87171' }}>Already taken — try another</p>
+            )}
+          </div>
         </div>
 
-        {/* Display name */}
+        {/* ── Display name ── */}
         <div>
-          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>Display name</label>
+          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>
+            Display name
+          </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
               style={{ color: focused === 'dn' ? '#e8604c' : '#6b6b5a' }}>
@@ -124,29 +151,43 @@ export default function Signup() {
               onFocus={() => setFocused('dn')} onBlur={() => setFocused('')}
               placeholder="Your Name"
               className="w-full rounded-xl pl-11 pr-4 py-2.5 text-sm text-ivory outline-none transition-all font-body"
-              style={inputStyle('dn')} />
+              style={base('dn')} />
           </div>
         </div>
 
-        {/* Email */}
+        {/* ── Email — shakes on duplicate ── */}
         <div>
-          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>Email</label>
-          <div className="relative">
+          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>
+            Email
+          </label>
+          <div className={`relative ${emailShake ? 'shake' : ''}`}>
             <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
-              style={{ color: focused === 'email' ? '#e8604c' : '#6b6b5a' }}>
+              style={{ color: focused === 'email' ? '#e8604c' : emailShake ? '#f87171' : '#6b6b5a' }}>
               <Mail size={14} />
             </span>
-            <input name="email" type="email" required value={form.email} onChange={handle}
+            <input
+              ref={emailRef}
+              name="email" type="email" required
+              value={form.email} onChange={handle}
               onFocus={() => setFocused('email')} onBlur={() => setFocused('')}
               placeholder="you@example.com"
               className="w-full rounded-xl pl-11 pr-4 py-2.5 text-sm text-ivory outline-none transition-all font-body"
-              style={inputStyle('email')} />
+              style={{
+                ...base('email'),
+                borderColor: emailShake ? '#f87171' : focused === 'email' ? '#e8604c' : '#3a3a34',
+                boxShadow: emailShake
+                  ? '0 0 0 3px rgba(248,113,113,0.15)'
+                  : focused === 'email' ? '0 0 0 3px rgba(232,96,76,0.12)' : 'none',
+              }}
+            />
           </div>
         </div>
 
-        {/* Password */}
+        {/* ── Password ── */}
         <div>
-          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>Password</label>
+          <label className="block text-xs font-600 mb-1.5 uppercase tracking-widest" style={{ color: '#a8a498' }}>
+            Password
+          </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
               style={{ color: focused === 'pw' ? '#e8604c' : '#6b6b5a' }}>
@@ -157,7 +198,7 @@ export default function Signup() {
               onFocus={() => setFocused('pw')} onBlur={() => setFocused('')}
               placeholder="••••••••"
               className="w-full rounded-xl pl-11 pr-11 py-2.5 text-sm text-ivory outline-none transition-all font-body"
-              style={inputStyle('pw')} />
+              style={base('pw')} />
             <button type="button" onClick={() => setShowPass(!showPass)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
               style={{ color: '#6b6b5a' }}
@@ -166,21 +207,31 @@ export default function Signup() {
               {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
-          {form.password.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-3">
-              {rules.map((r) => (
-                <div key={r.label} className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full border flex items-center justify-center transition-all flex-shrink-0"
-                    style={{ background: r.test(form.password) ? '#e8604c' : 'transparent', borderColor: r.test(form.password) ? '#e8604c' : '#3a3a34' }}>
-                    {r.test(form.password) && <Check size={7} className="text-white" />}
-                  </div>
-                  <span className="text-xs font-body" style={{ color: r.test(form.password) ? '#a8a498' : '#3a3a34' }}>{r.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Fixed height — prevents layout shift */}
+          <div style={{ height: '20px', marginTop: '6px' }}>
+            {form.password.length > 0 && (
+              <div className="flex items-center gap-4">
+                {rules.map((r) => {
+                  const ok = r.test(form.password)
+                  return (
+                    <div key={r.label} className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full border flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ background: ok ? '#e8604c' : 'transparent', borderColor: ok ? '#e8604c' : '#3a3a34' }}>
+                        {ok && <Check size={7} color="#fff" />}
+                      </div>
+                      <span className="text-xs font-body transition-colors"
+                        style={{ color: ok ? '#a8a498' : '#3a3a34' }}>
+                        {r.label}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* ── Submit ── */}
         <button type="submit" disabled={loading || usernameState === 'taken'}
           className="w-full py-3 rounded-xl font-display font-600 text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
           style={{ background: '#f0ece0', color: '#1c1c1a' }}
