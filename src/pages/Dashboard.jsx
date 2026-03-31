@@ -341,10 +341,42 @@ function LinkCard({ link, onToggle, onDelete, onEdit }) {
 }
 
 // ── Add Link Modal ────────────────────────────────────────────────────────────
+const LINK_EXAMPLES = [
+  { title: 'Portfolio',       url: 'mysite.dev' },
+  { title: 'GitHub',          url: 'github.com/yourname' },
+  { title: 'Twitter / X',     url: 'x.com/yourname' },
+  { title: 'LinkedIn',        url: 'linkedin.com/in/yourname' },
+  { title: 'Resume',          url: 'read.cv/yourname' },
+  { title: 'Writing',         url: 'substack.com/yourname' },
+  { title: 'YouTube',         url: 'youtube.com/@yourname' },
+  { title: 'Instagram',       url: 'instagram.com/yourname' },
+  { title: 'Buy me a coffee', url: 'buymeacoffee.com/yourname' },
+  { title: 'Discord',         url: 'discord.gg/yourserver' },
+  { title: 'Dribbble',        url: 'dribbble.com/yourname' },
+  { title: 'Figma',           url: 'figma.com/@yourname' },
+]
+
+function useCyclingPlaceholder(items, interval = 2200) {
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const t = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setIndex(i => (i + 1) % items.length)
+        setVisible(true)
+      }, 250)
+    }, interval)
+    return () => clearInterval(t)
+  }, [items.length, interval])
+  return { item: items[index], visible }
+}
+
 function AddLinkModal({ onClose, onAdd }) {
   const [form, setForm] = useState({ title: '', url: '' })
   const [loading, setLoading] = useState(false)
   const backdropRef = useRef(null)
+  const { item: example, visible: exVisible } = useCyclingPlaceholder(LINK_EXAMPLES)
 
   useEffect(() => {
     const h = (e) => { if (e.key === 'Escape') onClose() }
@@ -397,16 +429,33 @@ function AddLinkModal({ onClose, onAdd }) {
             <label className="block text-xs font-600 mb-2 uppercase tracking-widest" style={{ color: '#a8a498' }}>Title</label>
             <input required autoFocus value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. My Portfolio"
-              style={iStyle} onFocus={iFocus} onBlur={iBlur} />
+              placeholder={example.title}
+              style={{
+                ...iStyle,
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+              }}
+              onFocus={iFocus} onBlur={iBlur} />
           </div>
           <div>
             <label className="block text-xs font-600 mb-2 uppercase tracking-widest" style={{ color: '#a8a498' }}>URL</label>
-            <input required value={form.url}
-              onChange={(e) => setForm({ ...form, url: e.target.value })}
-              placeholder="github.com/you or https://..."
-              style={{ ...iStyle, fontFamily: '"JetBrains Mono", monospace', color: '#d4d0c0' }}
-              onFocus={iFocus} onBlur={iBlur} />
+            <div className="relative">
+              <input required value={form.url}
+                onChange={(e) => setForm({ ...form, url: e.target.value })}
+                placeholder={example.url}
+                style={{
+                  ...iStyle,
+                  fontFamily: '"JetBrains Mono", monospace',
+                  color: '#d4d0c0',
+                }}
+                onFocus={iFocus} onBlur={iBlur} />
+              {/* Fade indicator on URL field showing it's cycling */}
+              {!form.url && (
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-code pointer-events-none transition-opacity duration-300"
+                  style={{ color: '#3a3a34', opacity: exVisible ? 1 : 0 }}>
+                  example
+                </span>
+              )}
+            </div>
           </div>
           <div className="pt-1">
             <button type="submit" disabled={loading}
@@ -539,7 +588,13 @@ export default function Dashboard() {
 
   const addLink    = async (f) => { const d = await api.post('/links', f); setLinks(p => [...p, d.data.link]); toast.success('Link added'); fetchStats() }
   const editLink   = async (id, u) => { const d = await api.patch(`/links/${id}`, u); setLinks(p => p.map(l => l._id === id ? d.data.link : l)); toast.success('Saved') }
-  const toggleLink = async (id, isActive) => { const d = await api.patch(`/links/${id}`, { isActive }); setLinks(p => p.map(l => l._id === id ? d.data.link : l)) }
+  const toggleLink = async (id, isActive) => {
+    // Optimistically update stats count immediately
+    setStats(s => s ? { ...s, activeLinks: s.activeLinks + (isActive ? 1 : -1) } : s)
+    const d = await api.patch(`/links/${id}`, { isActive })
+    setLinks(p => p.map(l => l._id === id ? d.data.link : l))
+    fetchStats() // sync with server to ensure accuracy
+  }
   const deleteLink = async (id) => {
     await api.delete(`/links/${id}`)
     setLinks(p => p.filter(l => l._id !== id))
