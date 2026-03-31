@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ExternalLink, Share2, Check, Link2, AlertCircle, Copy, Twitter } from 'lucide-react'
 import api from '../lib/api'
+import LinkIcon from '../components/LinkIcon'
 
 function NotFound({ username }) {
   return (
@@ -88,14 +89,13 @@ function LinkButton({ link, index }) {
         animationFillMode: 'forwards',
       }}>
 
-      {/* Number */}
-      <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-code font-500 shrink-0 transition-all"
+      {/* Brand icon */}
+      <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all"
         style={{
           background: hovered ? 'rgba(232,96,76,0.15)' : '#1c1c1a',
           border: `1px solid ${hovered ? 'rgba(232,96,76,0.3)' : '#3a3a34'}`,
-          color: hovered ? '#e8604c' : '#3a3a34',
         }}>
-        {String(index + 1).padStart(2, '0')}
+        <LinkIcon url={link.url} size={15} />
       </span>
 
       <span className="flex-1 min-w-0">

@@ -12,6 +12,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Link } from 'react-router-dom'
+import LinkIcon from '../components/LinkIcon'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
@@ -295,8 +296,13 @@ function LinkCard({ link, onToggle, onDelete, onEdit }) {
             <GripVertical size={15} />
           </button>
 
-          <div className={`w-2 h-2 rounded-full shrink-0 transition-colors ${link.isActive ? 'active-dot' : ''}`}
-            style={{ backgroundColor: link.isActive ? '#e8604c' : '#4a4a3e' }} />
+          {/* Brand icon */}
+          <div className="shrink-0 w-5 h-5 flex items-center justify-center">
+            {link.isActive
+              ? <LinkIcon url={link.url} size={16} />
+              : <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4a4a3e' }} />
+            }
+          </div>
 
           <div className="flex-1 min-w-0">
             <p className="text-sm font-body font-600 truncate transition-colors"
