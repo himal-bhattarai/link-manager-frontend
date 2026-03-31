@@ -15,13 +15,22 @@ function HandleRoute() {
   return <NotFound />
 }
 
+const Spinner = () => (
+  <div className="min-h-dvh flex items-center justify-center" style={{ backgroundColor: '#1c1c1a' }}>
+    <div className="w-5 h-5 border-2 rounded-full animate-spin"
+      style={{ borderColor: '#3a3a34', borderTopColor: '#e8604c' }} />
+  </div>
+)
+
 function AppRoutes() {
   const { user, authReady } = useAuth()
   return (
     <Routes>
-      {/* Root — once auth resolves, redirect logged-in users to dashboard */}
+      {/* Root — wait for auth check, then redirect logged-in or show landing */}
       <Route path="/" element={
-        authReady && user ? <Navigate to="/dashboard" replace /> : <Landing />
+        !authReady ? <Spinner /> :
+        user       ? <Navigate to="/dashboard" replace /> :
+                     <Landing />
       } />
       <Route path="/login"     element={<Login />} />
       <Route path="/signup"    element={<Signup />} />

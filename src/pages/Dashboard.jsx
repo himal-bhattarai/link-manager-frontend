@@ -23,6 +23,8 @@ function SettingsModal({ onClose }) {
   const [profileForm, setProfileForm] = useState({ displayName: user?.displayName || '', bio: user?.bio || '' })
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [saving, setSaving] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef(null)
   const backdropRef = useRef(null)
 
   useEffect(() => {
@@ -38,6 +40,28 @@ function SettingsModal({ onClose }) {
   }
   const fieldFocus = (e) => { e.target.style.borderColor = '#e8604c'; e.target.style.boxShadow = '0 0 0 3px rgba(232,96,76,0.12)' }
   const fieldBlur  = (e) => { e.target.style.borderColor = '#3a3a34'; e.target.style.boxShadow = 'none' }
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5MB'); return }
+    setUploadingAvatar(true)
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const d = await api.patch('/users/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      updateUser(d.data.user)
+      toast.success('Avatar updated')
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setUploadingAvatar(false)
+      e.target.value = ''
+    }
+  }
 
   const saveProfile = async () => {
     setSaving(true)
@@ -92,13 +116,35 @@ function SettingsModal({ onClose }) {
             {/* Avatar row */}
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-display font-700 text-xl"
-                  style={{ background: '#e8604c', color: '#fff' }}>
-                  {user?.displayName?.[0]?.toUpperCase() || 'U'}
-                </div>
-                <button className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                  style={{ background: '#f0ece0' }}>
-                  <Camera size={9} style={{ color: '#1c1c1a' }} />
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.displayName}
+                    className="w-14 h-14 rounded-xl object-cover" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center font-display font-700 text-xl"
+                    style={{ background: '#e8604c', color: '#fff' }}>
+                    {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                )}
+                {/* Hidden file input */}
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center transition-all"
+                  style={{ background: '#f0ece0' }}
+                  title="Change avatar">
+                  {uploadingAvatar
+                    ? <span className="w-2.5 h-2.5 border rounded-full animate-spin block"
+                        style={{ borderColor: 'rgba(28,28,26,0.2)', borderTopColor: '#1c1c1a' }} />
+                    : <Camera size={9} style={{ color: '#1c1c1a' }} />
+                  }
                 </button>
               </div>
               <div>
@@ -549,10 +595,15 @@ export default function Dashboard() {
         {/* Profile header */}
         <div className="flex items-center justify-between mb-7 animate-fade-up" style={{ animationFillMode: 'forwards' }}>
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center font-display font-700 text-lg text-white shrink-0"
-              style={{ background: '#e8604c' }}>
-              {user?.displayName?.[0]?.toUpperCase() || 'U'}
-            </div>
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.displayName}
+                className="w-11 h-11 rounded-xl object-cover shrink-0" />
+            ) : (
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center font-display font-700 text-lg text-white shrink-0"
+                style={{ background: '#e8604c' }}>
+                {user?.displayName?.[0]?.toUpperCase() || 'U'}
+              </div>
+            )}
             <div>
               <h1 className="font-display font-700 text-xl text-ivory leading-tight">{user?.displayName}</h1>
               <Link to={profilePath} target="_blank"
