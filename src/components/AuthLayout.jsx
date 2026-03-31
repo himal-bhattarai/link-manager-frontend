@@ -125,7 +125,7 @@ export default function AuthLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-y-auto" style={{ backgroundColor: '#242420' }}>
         <div className="flex-1 flex items-center justify-center px-8 py-10">
           <AnimatedPanel id={pathname + '-form'}>
-            <div className="w-full max-w-sm">
+            <div className="w-full max-w-md">
               {children}
             </div>
           </AnimatedPanel>

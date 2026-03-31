@@ -17,12 +17,14 @@ export default function Login() {
 
   const submit = async (e) => {
     e.preventDefault()
+    if (loading) return
     setLoading(true)
     try {
       await login(form.email, form.password)
       toast.success('Welcome back')
       navigate('/dashboard')
     } catch (err) {
+      toast.dismiss()
       toast.error(err.message)
     } finally {
       setLoading(false)

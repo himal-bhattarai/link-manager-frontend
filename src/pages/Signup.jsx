@@ -47,6 +47,7 @@ export default function Signup() {
 
   const submit = async (e) => {
     e.preventDefault()
+    if (loading) return
     if (usernameState === 'taken') { toast.error('Username already taken'); return }
     setLoading(true)
     try {
@@ -54,6 +55,7 @@ export default function Signup() {
       toast.success('Account created!')
       navigate('/dashboard')
     } catch (err) {
+      toast.dismiss()
       const msg = err.message?.toLowerCase() || ''
       if (msg.includes('email')) {
         triggerEmailError()
