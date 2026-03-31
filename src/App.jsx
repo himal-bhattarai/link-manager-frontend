@@ -16,10 +16,13 @@ function HandleRoute() {
 }
 
 function AppRoutes() {
-  const { user } = useAuth()
+  const { user, authReady } = useAuth()
   return (
     <Routes>
-      <Route path="/"          element={user ? <Navigate to="/dashboard" replace /> : <Landing />} />
+      {/* Root — once auth resolves, redirect logged-in users to dashboard */}
+      <Route path="/" element={
+        authReady && user ? <Navigate to="/dashboard" replace /> : <Landing />
+      } />
       <Route path="/login"     element={<Login />} />
       <Route path="/signup"    element={<Signup />} />
       <Route path="/:handle"   element={<HandleRoute />} />

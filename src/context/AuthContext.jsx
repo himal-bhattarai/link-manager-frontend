@@ -1,13 +1,21 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import api from '../lib/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser]       = useState(null)
+  const [authReady, setAuthReady] = useState(false) // true once /auth/me has resolved
 
-  // No on-mount API call — user state starts null (guest)
-  // Auth is checked lazily only when hitting a protected route
+  // On mount: silently restore session from cookie.
+  // Public pages (/, /login, /signup, /@username) don't wait for this —
+  // they render immediately. Only ProtectedRoute waits via authReady.
+  useEffect(() => {
+    api.get('/auth/me')
+      .then((data) => setUser(data.data.user))
+      .catch(() => setUser(null))
+      .finally(() => setAuthReady(true))
+  }, [])
 
   const login = async (email, password) => {
     const data = await api.post('/auth/login', { email, password })
@@ -28,20 +36,8 @@ export function AuthProvider({ children }) {
 
   const updateUser = (updates) => setUser((u) => ({ ...u, ...updates }))
 
-  // Called by ProtectedRoute — checks session once when dashboard is visited
-  const checkAuth = async () => {
-    try {
-      const data = await api.get('/auth/me')
-      setUser(data.data.user)
-      return data.data.user
-    } catch {
-      setUser(null)
-      return null
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateUser, checkAuth }}>
+    <AuthContext.Provider value={{ user, authReady, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
