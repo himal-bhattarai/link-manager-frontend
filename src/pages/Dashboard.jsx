@@ -296,12 +296,10 @@ function LinkCard({ link, onToggle, onDelete, onEdit }) {
             <GripVertical size={15} />
           </button>
 
-          {/* Brand icon */}
-          <div className="shrink-0 w-5 h-5 flex items-center justify-center">
-            {link.isActive
-              ? <LinkIcon url={link.url} size={16} />
-              : <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4a4a3e' }} />
-            }
+          {/* Brand icon — full opacity when active, dimmed when inactive */}
+          <div className="shrink-0 w-5 h-5 flex items-center justify-center"
+            style={{ opacity: link.isActive ? 1 : 0.3 }}>
+            <LinkIcon url={link.url} size={16} />
           </div>
 
           <div className="flex-1 min-w-0">
